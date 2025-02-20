@@ -24,6 +24,8 @@ def main():
 
     print(f"Message from {user} : {message}")
 
+    print(apiKey, "\n", endPoint)
+
     # Generate a response using LLMProxy
     response = generate(
         model='4o-mini',
