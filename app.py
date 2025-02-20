@@ -17,7 +17,7 @@ if not API_KEY or not ENDPOINT:
 def hello_world():
     return jsonify({"text": "Hello from Koyeb - you reached the main page!"})
 
-@app.route('/query', methods=['POST'])
+@app.route("/query", methods=["POST"])
 def handle_rocket_chat():
     """
     Handles queries from Rocket Chat webhook.
@@ -35,28 +35,27 @@ def handle_rocket_chat():
         return jsonify({"status": "ignored"})
 
     print(f"Message from {user}: {message}")
-    
+
     # Generate a response using LLMProxy
     response = generate(
-    model="4o-mini",
-    system="Answer the question concisely and provide relevant details.",
-    query=message,
-    temperature=0.7,
-    lastk=0,
-    session_id="GenericSession"
-)
+        model="4o-mini",
+        system="Answer the question concisely and provide relevant details.",
+        query=message,
+        temperature=0.7,
+        lastk=0,
+        session_id="GenericSession"
+    )
 
-# Ensure response is a dictionary
-if isinstance(response, str):
-    response_text = response  # Use the string directly
-elif isinstance(response, dict):
-    response_text = response.get("response", "I couldn't process your request.")
-else:
-    response_text = "Unexpected response format."
+    # Ensure response is a dictionary before calling `.get()`
+    if isinstance(response, dict):
+        response_text = response.get("response", "I couldn't process your request.")
+    else:
+        response_text = "Error: LLMProxy returned an unexpected response."
 
-print(f"Response to {user}: {response_text}")
+    print(f"Response to {user}: {response_text}")
 
-return jsonify({"text": response_text})
+    return jsonify({"text": response_text})  # ✅ This return is inside the function
+
 
 @app.route('/chat', methods=['POST'])
 def chat():
