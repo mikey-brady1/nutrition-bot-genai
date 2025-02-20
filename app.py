@@ -35,23 +35,28 @@ def handle_rocket_chat():
         return jsonify({"status": "ignored"})
 
     print(f"Message from {user}: {message}")
-
+    
     # Generate a response using LLMProxy
     response = generate(
-        model="4o-mini",
-        system="Answer the question concisely and provide relevant details.",
-        query=message,
-        temperature=0.7,
-        lastk=0,
-        session_id="GenericSession"
-    )
+    model="4o-mini",
+    system="Answer the question concisely and provide relevant details.",
+    query=message,
+    temperature=0.7,
+    lastk=0,
+    session_id="GenericSession"
+)
 
+# Ensure response is a dictionary
+if isinstance(response, str):
+    response_text = response  # Use the string directly
+elif isinstance(response, dict):
     response_text = response.get("response", "I couldn't process your request.")
+else:
+    response_text = "Unexpected response format."
 
-    print(f"Response to {user}: {response_text}")
+print(f"Response to {user}: {response_text}")
 
-    return jsonify({"text": response_text})
-
+return jsonify({"text": response_text})
 
 @app.route('/chat', methods=['POST'])
 def chat():
