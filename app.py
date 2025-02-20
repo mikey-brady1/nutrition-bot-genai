@@ -13,9 +13,9 @@ ENDPOINT = os.environ.get("endPoint", "").strip()
 if not API_KEY or not ENDPOINT:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
 
-@app.route('/', methods=['POST'])
+@app.route("/", methods=["GET", "POST"])
 def hello_world():
-    return jsonify({"text": 'Hello from Koyeb - you reached the main page!'})
+    return jsonify({"text": "Hello from Koyeb - you reached the main page!"})
 
 @app.route('/query', methods=['POST'])
 def handle_rocket_chat():
