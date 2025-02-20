@@ -8,19 +8,15 @@ app = Flask(__name__)
 
 # Read API config from environment variables
 API_KEY = os.environ.get("apiKey", "").strip()
-ENDPOINT = os.environ.get("endPoint", "").strip()
+ENDPOINT = os.environ.get("endPoint", "").strip().strip('"')  # Ensure no extra quotes
 
 if not API_KEY or not ENDPOINT:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
 
-@app.route("/", methods=["GET", "POST"])
-def hello_world():
-    return jsonify({"text": "Hello from Koyeb - you reached the main page!"})
-
-@app.route("/query", methods=["POST"])
+@app.route("/", methods=["POST"])
 def handle_rocket_chat():
     """
-    Handles queries from Rocket Chat webhook.
+    This function will now handle ALL messages from Rocket Chat directly.
     """
     data = request.get_json()
 
@@ -48,7 +44,6 @@ def handle_rocket_chat():
 
     print(f"RAW LLMProxy Response: {response}")
 
-
     # Ensure response is a dictionary before calling `.get()`
     if isinstance(response, dict):
         response_text = response.get("response", "I couldn't process your request.")
@@ -58,16 +53,6 @@ def handle_rocket_chat():
     print(f"Response to {user}: {response_text}")
 
     return jsonify({"text": response_text})  # ✅ This return is inside the function
-
-
-@app.route('/chat', methods=['POST'])
-def chat():
-    """
-    Handles user queries related to nutrition and recipes.
-    Routes request to chatbot.py for processing.
-    """
-    data = request.get_json()
-    return process_chat_query(data)  # Call chatbot logic
 
 @app.errorhandler(404)
 def page_not_found(e):
