@@ -1,77 +1,49 @@
-import os
 import requests
 from flask import Flask, request, jsonify
 from llmproxy import generate
-from chatbot import process_chat_query  # Import chatbot logic
 
 app = Flask(__name__)
 
-# Read API config from environment variables
-API_KEY = os.environ.get("apiKey", "").strip()
-ENDPOINT = os.environ.get("endPoint", "").strip()
-
-if not API_KEY or not ENDPOINT:
-    raise RuntimeError("API_KEY or ENDPOINT is missing. Ensure they are set correctly in Koyeb.")
-
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=['POST'])
 def hello_world():
-    return jsonify({"text": "Hello from Koyeb - you reached the main page!"})
+   return jsonify({"text":'Hello from Koyeb - you reached the main page!'})
 
-@app.route("/query", methods=["POST"])
-def handle_rocket_chat():
-    """
-    Handles queries from Rocket Chat webhook.
-    """
-    data = request.get_json()
+@app.route('/query', methods=['POST'])
+def main():
+    data = request.get_json() 
 
-    # Extract message details
+    # Extract relevant information
     user = data.get("user_name", "Unknown")
     message = data.get("text", "")
 
-    print(f"Incoming request: {data}")
+    print(data)
 
     # Ignore bot messages
     if data.get("bot") or not message:
         return jsonify({"status": "ignored"})
 
-    print(f"Message from {user}: {message}")
+    print(f"Message from {user} : {message}")
 
     # Generate a response using LLMProxy
     response = generate(
-        model="4o-mini",
-        system="Answer the question concisely and provide relevant details.",
-        query=message,
-        temperature=0.7,
+        model='4o-mini',
+        system='answer my question and add keywords',
+        query= message,
+        temperature=0.0,
         lastk=0,
-        session_id="GenericSession"
+        session_id='GenericSession'
     )
 
-    print(f"RAW LLMProxy Response: {response}")
+    response_text = response['response']
+    
+    # Send response back
+    print(response_text)
 
-
-    # Ensure response is a dictionary before calling `.get()`
-    if isinstance(response, dict):
-        response_text = response.get("response", "I couldn't process your request.")
-    else:
-        response_text = "Error: LLMProxy returned an unexpected response."
-
-    print(f"Response to {user}: {response_text}")
-
-    return jsonify({"text": response_text})  # ✅ This return is inside the function
-
-
-@app.route('/chat', methods=['POST'])
-def chat():
-    """
-    Handles user queries related to nutrition and recipes.
-    Routes request to chatbot.py for processing.
-    """
-    data = request.get_json()
-    return process_chat_query(data)  # Call chatbot logic
-
+    return jsonify({"text": response_text})
+    
 @app.errorhandler(404)
 def page_not_found(e):
     return "Not Found", 404
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run()
