@@ -46,6 +46,9 @@ def handle_rocket_chat():
         session_id="GenericSession"
     )
 
+    print(f"RAW LLMProxy Response: {response}")
+
+
     # Ensure response is a dictionary before calling `.get()`
     if isinstance(response, dict):
         response_text = response.get("response", "I couldn't process your request.")
