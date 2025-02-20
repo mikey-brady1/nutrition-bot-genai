@@ -6,8 +6,8 @@ from llmproxy import generate
 app = Flask(__name__)
 
 # Retrieve API Key & Endpoint from environment variables
-apiKey = os.environ.get("apiKey", "").strip()
-endPoint = os.environ.get("endPoint", "").strip().strip('"')  # Strip to remove accidental quotes
+apiKey = os.environ.get("apiKey")
+endPoint = os.environ.get("endPoint")
 
 # Debug
 print(f"Loaded API Key: {apiKey}")  # Print first few chars of API Key
