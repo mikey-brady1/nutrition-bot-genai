@@ -1,18 +1,60 @@
 import os
+import requests
 from flask import Flask, request, jsonify, render_template
 from llmproxy import generate
 
 app = Flask(__name__)
 
 # Read API config from environment variables
-API_KEY = os.environ.get("apiKey", "").strip()  # Ensure it defaults to an empty string if not set
+API_KEY = os.environ.get("apiKey", "").strip()
 ENDPOINT = os.environ.get("endPoint", "").strip()
 
-# Validate that both API_KEY and ENDPOINT are set
+# Ensure API key and endpoint are set
 if not API_KEY or not ENDPOINT:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
 
+### 🚀 Rocket Chat Integration ###
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"text": "Hello from Koyeb - you reached the main page!"})
 
+@app.route("/query", methods=["POST"])
+def handle_rocket_chat():
+    """
+    Handles queries from Rocket Chat webhook.
+    """
+    data = request.get_json()
+
+    # Extract message details
+    user = data.get("user_name", "Unknown")
+    message = data.get("text", "")
+
+    print(f"Incoming request: {data}")
+
+    # Ignore bot messages
+    if data.get("bot") or not message:
+        return jsonify({"status": "ignored"})
+
+    print(f"Message from {user}: {message}")
+
+    # Generate a response using LLMProxy
+    response = generate(
+        model="4o-mini",
+        system="Answer the question concisely and provide relevant details.",
+        query=message,
+        temperature=0.7,
+        lastk=0,
+        session_id="GenericSession"
+    )
+
+    response_text = response.get("response", "I couldn't process your request.")
+
+    print(f"Response to {user}: {response_text}")
+
+    return jsonify({"text": response_text})
+
+
+### 🥑 Recipe & Nutrition API ###
 def get_recipe(ingredients):
     """
     Retrieves a recipe from uploaded cookbooks if available; otherwise, generates a new one.
@@ -107,6 +149,7 @@ def get_general_nutrition_advice(query):
     return format_nutrition_advice_response(response.get("response", "No relevant advice found. Try rewording your question."))
 
 
+### 📝 Format Functions ###
 def format_recipe_response(text):
     """
     Ensures proper formatting for recipes.
@@ -140,11 +183,7 @@ def format_nutrition_advice_response(text):
     return formatted_text
 
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
+### 🔥 Chat API for Recipe/Nutrition Queries ###
 @app.route("/chat", methods=["POST"])
 def chat():
     """
@@ -170,5 +209,13 @@ def chat():
     return jsonify({"response": response, "queryType": query_type})
 
 
+### ❌ 404 Error Handling ###
+@app.errorhandler(404)
+def page_not_found(e):
+    return "Not Found", 404
+
+
+### 🚀 Run App ###
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+
