@@ -1,16 +1,15 @@
+import os
 from flask import Flask, request, jsonify, render_template
-import json
 from llmproxy import generate
 
 app = Flask(__name__)
 
-# Load API configuration
-with open("config.json", "r") as f:
-    config = json.load(f)
+# Read API config from environment variables
+API_KEY = os.getenv("apiKey")
+ENDPOINT = os.getenv("endPoint")
 
-API_KEY = config["apiKey"]
-ENDPOINT = config["endPoint"]
-
+if not API_KEY or not ENDPOINT:
+    raise RuntimeError("API_KEY or ENDPOINT is missing! Set them as environment variables.")
 
 def get_recipe(ingredients):
     """
