@@ -34,7 +34,11 @@ def main():
         session_id='GenericSession'
     )
 
-    response_text = response['response']
+    if isinstance(response, dict):
+       response_text = response.get("response", "I couldn't process your request.")
+    else:
+       response_text = f"Error: Unexpected response format: {response}"
+
     
     # Send response back
     print(response_text)
