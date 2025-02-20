@@ -10,7 +10,7 @@ apiKey = os.environ.get("apiKey", "").strip()
 endPoint = os.environ.get("endPoint", "").strip().strip('"')  # Strip to remove accidental quotes
 
 # Debug
-print(f"Loaded API Key: {apiKey[:5]}******")  # Print first few chars of API Key
+print(f"Loaded API Key: {apiKey}")  # Print first few chars of API Key
 print(f"Loaded Endpoint: {endPoint}")  # Print full Endpoint
 
 if not apiKey or not endPoint:
@@ -37,7 +37,7 @@ def main():
     print(f"Message from {user}: {message}")
 
     # Debug 2: Print API Key and Endpoint inside function
-    print(f"API Key: {apiKey[:5]}******")  # Masked API Key
+    print(f"API Key: {apiKey}")  
     print(f"Endpoint: {endPoint}")
 
     # Generate a response using LLMProxy
