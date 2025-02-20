@@ -36,7 +36,7 @@ def main():
 
     print(f"Message from {user}: {message}")
 
-    # ✅ Debugging: Print API Key and Endpoint inside function
+    # Debug 2: Print API Key and Endpoint inside function
     print(f"API Key: {apiKey[:5]}******")  # Masked API Key
     print(f"Endpoint: {endPoint}")
 
