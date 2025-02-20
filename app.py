@@ -6,12 +6,12 @@ from llmproxy import generate
 app = Flask(__name__)
 
 # Retrieve API Key & Endpoint from environment variables
-apiKey = os.environ.get("apiKey")
-endPoint = os.environ.get("endPoint")
+apiKey = os.environ.get("apiKey", "").strip()
+endPoint = os.environ.get("endPoint", "").strip().strip('"')  # Strip to remove accidental quotes
 
 # Debug
-print(f"Loaded API Key: {apiKey}")  # Print first few chars of API Key
-print(f"Loaded Endpoint: {endPoint}")  # Print full Endpoint
+print(f"Loaded API Key: {apiKey}")  
+print(f"Loaded Endpoint: {endPoint}")  
 
 if not apiKey or not endPoint:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
@@ -37,7 +37,7 @@ def main():
     print(f"Message from {user}: {message}")
 
     # Debug 2: Print API Key and Endpoint inside function
-    print(f"API Key: {apiKey}")  
+    print(f"API Key: {apiKey}")  # Masked API Key
     print(f"Endpoint: {endPoint}")
 
     # Generate a response using LLMProxy
