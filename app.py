@@ -5,11 +5,12 @@ from llmproxy import generate
 app = Flask(__name__)
 
 # Read API config from environment variables
-END_POINT = os.environ.get("endPoint")
-API_KEY = os.environ.get("apiKey")
+API_KEY = os.environ.get("apiKey")  # Match Koyeb variable name
+ENDPOINT = os.environ.get("endPoint")  # Match Koyeb variable name
 
 if not API_KEY or not ENDPOINT:
-    raise RuntimeError("API_KEY or ENDPOINT is missing! Set them as environment variables.")
+    raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
+
 
 def get_recipe(ingredients):
     """
