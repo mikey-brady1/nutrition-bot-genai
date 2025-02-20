@@ -2,6 +2,7 @@ import os
 import requests
 from flask import Flask, request, jsonify
 from llmproxy import generate
+from chatbot import process_chat_query  # Import chatbot logic
 
 app = Flask(__name__)
 
@@ -9,24 +10,25 @@ app = Flask(__name__)
 apiKey = os.environ.get("apiKey", "").strip()
 endPoint = os.environ.get("endPoint", "").strip().strip('"')  # Strip to remove accidental quotes
 
-# Debug
+# Debugging Logs
 print(f"Loaded API Key: {apiKey}")  
 print(f"Loaded Endpoint: {endPoint}")  
 
 if not apiKey or not endPoint:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
 
-@app.route('/', methods=['POST'])
-def hello_world():
-   return jsonify({"text": 'Hello from Koyeb - you reached the main page!'})
-
 @app.route('/query', methods=['POST'])
 def main():
+    """
+    Handles all queries from Rocket.Chat.
+    - Guides users on how to interact with the chatbot.
+    - Processes user messages via chatbot.py.
+    """
     data = request.get_json() 
 
     # Extract relevant information
     user = data.get("user_name", "Unknown")
-    message = data.get("text", "")
+    message = data.get("text", "").strip().lower()
 
     print(f"Incoming request: {data}")
 
@@ -36,32 +38,23 @@ def main():
 
     print(f"Message from {user}: {message}")
 
-    # Debug 2: Print API Key and Endpoint inside function
-    print(f"API Key: {apiKey}")  # Masked API Key
-    print(f"Endpoint: {endPoint}")
+    # **Initial User Guidance**
+    if message in ["hello", "hi", "hey"]:
+        response_text = (
+            "👋 Hello! Welcome to the Nutrition Chatbot! Here's how to use me:\n\n"
+            "1️⃣ *Get a Recipe:* Type `recipe` followed by ingredients (e.g., `recipe oats, banana`)\n"
+            "2️⃣ *Get Nutrition Info:* Type `nutrition` followed by a food name (e.g., `nutrition spinach`)\n"
+            "3️⃣ *Get General Nutrition Advice:* Type `general` followed by a topic (e.g., `general healthy eating`)\n\n"
+            "💡 How can I assist you today?"
+        )
+        return jsonify({"text": response_text})
 
-    # Generate a response using LLMProxy
-    response = generate(
-        model='4o-mini',
-        system='answer my question and add keywords',
-        query=message,
-        temperature=0.0,
-        lastk=0,
-        session_id='GenericSession'
-    )
-
-    if isinstance(response, dict):
-       response_text = response.get("response", "I couldn't process your request.")
-    else:
-       response_text = f"Error: Unexpected response format: {response}"
-
-    # Send response back
-    print(response_text)
-    return jsonify({"text": response_text})
+    # Send request to chatbot logic
+    return process_chat_query(data)
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return "Not Found", 404
+    return jsonify({"error": "Not Found"}), 404
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=8000, debug=True)
