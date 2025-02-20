@@ -5,8 +5,8 @@ from llmproxy import generate
 app = Flask(__name__)
 
 # Read API config from environment variables
-API_KEY = os.getenv("apiKey")
-ENDPOINT = os.getenv("endPoint")
+end_point = os.environ.get("endPoint")
+api_key = os.environ.get("apiKey")
 
 if not API_KEY or not ENDPOINT:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Set them as environment variables.")
