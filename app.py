@@ -5,9 +5,10 @@ from llmproxy import generate
 app = Flask(__name__)
 
 # Read API config from environment variables
-API_KEY = os.environ.get("apiKey")  # Match Koyeb variable name
-ENDPOINT = os.environ.get("endPoint")  # Match Koyeb variable name
+API_KEY = os.environ.get("apiKey", "").strip()  # Ensure it defaults to an empty string if not set
+ENDPOINT = os.environ.get("endPoint", "").strip()
 
+# Validate that both API_KEY and ENDPOINT are set
 if not API_KEY or not ENDPOINT:
     raise RuntimeError("API_KEY or ENDPOINT is missing! Ensure they are set correctly in Koyeb.")
 
@@ -170,4 +171,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)
